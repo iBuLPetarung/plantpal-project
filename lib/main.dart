@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:async';
 import 'splashScreen.dart';
 import 'notificationPage.dart';
@@ -8,6 +9,8 @@ import 'menuPage.dart';
 import 'chatBotPage.dart';
 import 'profilePage.dart';
 import 'signupPage.dart';
+import 'startplantPage.dart';
+import 'loginPage.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized(); // Memastikan aplikasi sudah siap
@@ -118,8 +121,27 @@ class _MyAppState extends State<MyApp> {
                     buildButton(
                       "Start Plant",
                       Icons.local_florist,
-                      onPressed: () {
-                        print("Start Plant clicked");
+                      onPressed: () async {
+                        // Cek status login pengguna
+                        User? user = FirebaseAuth.instance.currentUser;
+
+                        if (user == null) {
+                          // Jika pengguna belum login, arahkan ke halaman login
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => LoginPage(),
+                            ), // Arahkan ke halaman login
+                          );
+                        } else {
+                          // Jika sudah login, arahkan ke halaman Start Plant
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => StartPlantPage(),
+                            ), // Arahkan ke halaman Start Plant
+                          );
+                        }
                       },
                     ),
                     SizedBox(height: 22),

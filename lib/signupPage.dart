@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'loginPage.dart';
 
 class SignUpPage extends StatefulWidget {
@@ -39,10 +40,21 @@ class _SignUpPageState extends State<SignUpPage> {
     setState(() => _isLoading = true);
 
     try {
-      await FirebaseAuth.instance.createUserWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
+      final credential = await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(email: email, password: password);
+
+      // Ambil UID
+      final uid = credential.user?.uid;
+
+      if (uid != null) {
+        // Simpan data tambahan ke Firestore
+        await FirebaseFirestore.instance.collection('users').doc(uid).set({
+          'username': usernameController.text.trim(),
+          'email': email,
+          'role': 'customer', // default role
+          'createdAt': Timestamp.now(),
+        });
+      }
 
       usernameController.clear();
       emailController.clear();

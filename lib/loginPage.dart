@@ -33,14 +33,13 @@ class _LoginPageState extends State<LoginPage> {
       UserCredential userCredential = await FirebaseAuth.instance
           .signInWithEmailAndPassword(email: username, password: password);
 
-      final user = userCredential.user;
-      final email = user?.email ?? "";
+      final email = userCredential.user?.email ?? "";
 
-      // Cek apakah ini admin atau customer berdasarkan email
+      // Cek apakah email adalah admin (hardcode di sini)
       if (email == "admin@gmail.com") {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const AdminHomePage()),
+          MaterialPageRoute(builder: (context) => AdminHomePage()),
         );
       } else {
         Navigator.pushReplacement(
