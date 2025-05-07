@@ -1,0 +1,12 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.planty.plantpal">
+
+    <!-- Izin Internet tetap ada -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <!-- Tambahkan elemen <application> di sini -->
+    <application android:usesCleartextTraffic="true">
+        <!-- Jika ada konfigurasi khusus debug, tambahkan di sini -->
+    </application>
+
+</manifest>
