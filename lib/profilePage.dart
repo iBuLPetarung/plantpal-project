@@ -1,23 +1,42 @@
 import 'loginPage.dart';
+import 'profileUserPage.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'main.dart';
 
-class ProfilePage extends StatelessWidget {
+class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final List<Map<String, dynamic>> accountOptions = [
-      {
-        "title": "Login",
-        "icon": FontAwesomeIcons.personChalkboard,
-        "onTap":
-            () => Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (_) => LoginPage()),
-            ),
-      },
+  State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  // TODO: Ganti ini dengan status login sesungguhnya dari Firebase atau SharedPreferences
+  bool isLoggedIn = true;
+
+  List<Map<String, dynamic>> getAccountOptions(BuildContext context) {
+    return [
+      if (!isLoggedIn)
+        {
+          "title": "Login",
+          "icon": FontAwesomeIcons.personChalkboard,
+          "onTap":
+              () => Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (_) => const LoginPage()),
+              ),
+        }
+      else
+        {
+          "title": "Profile",
+          "icon": FontAwesomeIcons.user,
+          "onTap":
+              () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const ProfileUserPage()),
+              ),
+        },
       {
         "title": "Activity",
         "icon": FontAwesomeIcons.chartLine,
@@ -49,39 +68,45 @@ class ProfilePage extends StatelessWidget {
         "onTap": () => print("Set up an account Clicked"),
       },
     ];
+  }
 
-    final List<Map<String, dynamic>> otherOptions = [
-      {
-        "title": "Privacy Policy",
-        "icon": FontAwesomeIcons.handcuffs,
-        "onTap": () => print("Privacy Policy Clicked"),
-      },
-      {
-        "title": "Terms of Service",
-        "icon": FontAwesomeIcons.teamspeak,
-        "onTap": () => print("Terms of Service Clicked"),
-      },
-      {
-        "title": "Rate",
-        "icon": FontAwesomeIcons.star,
-        "onTap": () => print("Rate Clicked"),
-      },
-    ];
+  final List<Map<String, dynamic>> otherOptions = [
+    {
+      "title": "Privacy Policy",
+      "icon": FontAwesomeIcons.handcuffs,
+      "onTap": () => print("Privacy Policy Clicked"),
+    },
+    {
+      "title": "Terms of Service",
+      "icon": FontAwesomeIcons.teamspeak,
+      "onTap": () => print("Terms of Service Clicked"),
+    },
+    {
+      "title": "Rate",
+      "icon": FontAwesomeIcons.star,
+      "onTap": () => print("Rate Clicked"),
+    },
+  ];
 
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Profile", style: TextStyle(color: Color(0xFF0D4715))),
-        backgroundColor: Color(0xFFEAF4E5),
+        title: const Text(
+          "Profile",
+          style: TextStyle(color: Color(0xFF0D4715)),
+        ),
+        backgroundColor: const Color(0xFFEAF4E5),
       ),
       body: SingleChildScrollView(
         child: Container(
-          decoration: BoxDecoration(color: Colors.white),
+          decoration: const BoxDecoration(color: Colors.white),
           child: Column(
             children: [
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               _buildSectionTitle('Account'),
-              SizedBox(height: 16),
-              ...accountOptions.map((option) {
+              const SizedBox(height: 16),
+              ...getAccountOptions(context).map((option) {
                 return _buildProfileButton(
                   context,
                   option['title'],
@@ -89,9 +114,9 @@ class ProfilePage extends StatelessWidget {
                   option['onTap'],
                 );
               }),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               _buildSectionTitle('Other Information'),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               ...otherOptions.map((option) {
                 return _buildProfileButton(
                   context,
@@ -107,18 +132,18 @@ class ProfilePage extends StatelessWidget {
       bottomNavigationBar: const MyBottomAppBar(),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: FloatingActionButton(
-        backgroundColor: Color(0xFF0D4715),
+        backgroundColor: const Color(0xFF0D4715),
         onPressed: () {
           print("Floating action button clicked");
         },
-        child: Icon(Icons.local_florist),
+        child: const Icon(Icons.local_florist),
       ),
     );
   }
 
   ButtonStyle getButtonStyle() {
     return ElevatedButton.styleFrom(
-      backgroundColor: Color.fromARGB(255, 255, 255, 255),
+      backgroundColor: const Color.fromARGB(255, 255, 255, 255),
       elevation: 0,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(0)),
     );
@@ -128,10 +153,10 @@ class ProfilePage extends StatelessWidget {
     return Align(
       alignment: Alignment.centerLeft,
       child: Padding(
-        padding: EdgeInsets.only(left: 16),
+        padding: const EdgeInsets.only(left: 16),
         child: Text(
           title,
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
             color: Color(0xFF0D4715),
@@ -141,7 +166,6 @@ class ProfilePage extends StatelessWidget {
     );
   }
 
-  // Function to avoid repetition of button code
   Widget _buildProfileButton(
     BuildContext context,
     String title,
@@ -159,18 +183,18 @@ class ProfilePage extends StatelessWidget {
           children: [
             Row(
               children: [
-                Icon(icon, color: Color(0xFF0D4715), size: 22),
-                SizedBox(width: 16),
+                Icon(icon, color: const Color(0xFF0D4715), size: 22),
+                const SizedBox(width: 16),
                 Text(
                   title,
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: Color(0xFF0D4715),
                     fontWeight: FontWeight.bold,
                   ),
                 ),
               ],
             ),
-            Icon(Icons.arrow_forward, color: Color(0xFF0D4715), size: 24),
+            const Icon(Icons.arrow_forward, color: Color(0xFF0D4715), size: 24),
           ],
         ),
       ),
