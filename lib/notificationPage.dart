@@ -7,11 +7,19 @@ class NotificationPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          "Notifications",
-          style: TextStyle(color: Color(0xFF0D4715)),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () {
+            Navigator.pop(context); // Kembali ke halaman sebelumnya
+          },
         ),
-        backgroundColor: Colors.white,
+        title: const Text(
+          "Notification",
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
+        centerTitle: true,
+        backgroundColor: const Color(0xFF99BC85),
+        elevation: 0,
       ),
       body: Center(child: Text("This is the Notification Page!")),
     );

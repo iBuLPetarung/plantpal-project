@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:plantpal/main.dart';
 import 'signupPage.dart';
 import 'adminHomePage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -13,6 +14,32 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _checkLoginStatus();
+  }
+
+  void _checkLoginStatus() async {
+    final prefs = await SharedPreferences.getInstance();
+    final isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
+    if (isLoggedIn) {
+      // Cek apakah pengguna sudah login dan arahkan ke halaman yang sesuai
+      final email = prefs.getString('email') ?? "";
+      if (email == "admin@gmail.com") {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => AdminHomePage()),
+        );
+      } else {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const AppEntry()),
+        );
+      }
+    }
+  }
 
   void _handleLogin() async {
     final username = _usernameController.text.trim();
@@ -34,6 +61,11 @@ class _LoginPageState extends State<LoginPage> {
           .signInWithEmailAndPassword(email: username, password: password);
 
       final email = userCredential.user?.email ?? "";
+
+      // Menyimpan status login dan email di SharedPreferences
+      final prefs = await SharedPreferences.getInstance();
+      prefs.setBool('isLoggedIn', true);
+      prefs.setString('email', email);
 
       // Cek apakah email adalah admin (hardcode di sini)
       if (email == "admin@gmail.com") {

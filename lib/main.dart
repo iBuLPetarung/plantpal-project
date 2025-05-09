@@ -2,20 +2,23 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:async';
 import 'splashScreen.dart';
 import 'notificationPage.dart';
 import 'menuPage.dart';
 import 'chatBotPage.dart';
-import 'profilePage.dart';
+import 'settingProfilePage.dart';
 import 'signupPage.dart';
-import 'startplantPage.dart';
+import 'startPlantPage.dart';
 import 'loginPage.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized(); // Memastikan aplikasi sudah siap
+  WidgetsFlutterBinding.ensureInitialized(); // Memastikan binding Flutter sudah siap
   await Firebase.initializeApp(); // Inisialisasi Firebase
-  runApp(AppEntry());
+  SharedPreferences prefs =
+      await SharedPreferences.getInstance(); // Tambahkan ini
+  runApp(AppEntry()); // Jalankan aplikasi
 }
 
 class AppEntry extends StatefulWidget {
@@ -147,7 +150,7 @@ class _MyAppState extends State<MyApp> {
                     SizedBox(height: 22),
                     buildButton(
                       "Ask Planty",
-                      FontAwesomeIcons.robot,
+                      Icons.adb,
                       onPressed: () {
                         Navigator.push(
                           context,
@@ -209,20 +212,27 @@ class _MyAppState extends State<MyApp> {
             Container(
               padding: EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Color(0xFFEAF4E5),
+                color: Color.fromARGB(255, 255, 255, 255),
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black12,
+                    color: Colors.black26,
                     blurRadius: 10,
-                    offset: Offset(0, 4),
+                    spreadRadius: 1,
+                    offset: Offset(0, 0),
                   ),
                 ],
               ),
-              child: Icon(icon, color: Color(0xFF0D4715), size: 32),
+              child: Icon(icon, color: Color(0xFF99BC85), size: 32),
             ),
             SizedBox(height: 8),
-            Text(title, style: TextStyle(fontWeight: FontWeight.bold)),
+            Text(
+              title,
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF0D4715),
+              ),
+            ),
           ],
         ),
       ),
@@ -237,31 +247,49 @@ class _MyAppState extends State<MyApp> {
     return SizedBox(
       width: 333,
       height: 64,
-      child: ElevatedButton(
-        onPressed: onPressed,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Color(0xFFEAF4E5),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-          elevation: 3,
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Row(
-              children: [
-                Icon(icon, color: Color(0xFF0D4715), size: 26),
-                SizedBox(width: 8),
-                Text(
-                  label,
-                  style: TextStyle(
-                    color: Color(0xFF0D4715),
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(8),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black26,
+              blurRadius: 10,
+              spreadRadius: 0.5,
+              offset: Offset(0, 0),
             ),
-            Icon(Icons.arrow_forward, color: Color(0xFF0D4715), size: 24),
           ],
+        ),
+        child: ElevatedButton(
+          onPressed: onPressed,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.transparent,
+            shadowColor: Colors.transparent, // Supaya tidak tumpang tindih
+            surfaceTintColor: Colors.transparent,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+            elevation: 0, // elevation 0 karena kita pakai BoxShadow
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  Icon(icon, color: Color(0xFF99BC85), size: 36),
+                  SizedBox(width: 8),
+                  Text(
+                    label,
+                    style: TextStyle(
+                      color: Color(0xFF0D4715),
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+              Icon(Icons.arrow_forward, color: Color(0xFF99BC85), size: 24),
+            ],
+          ),
         ),
       ),
     );
@@ -274,7 +302,11 @@ class _MyAppState extends State<MyApp> {
         padding: EdgeInsets.only(left: 16),
         child: Text(
           title,
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: Color(0xFF0D4715),
+          ),
         ),
       ),
     );
@@ -293,7 +325,7 @@ class _MyAppState extends State<MyApp> {
           12,
           (index) => Container(
             height: 100,
-            color: Colors.green[(index % 4 + 5) * 100] ?? Colors.green,
+            color: Color(0xFF99BC85),
             child: Center(child: Text('Item ${index + 1}')),
           ),
         ),
@@ -307,6 +339,14 @@ class _MyAppState extends State<MyApp> {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(32),
         color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black26,
+            blurRadius: 15,
+            spreadRadius: 3,
+            offset: Offset(0, 6),
+          ),
+        ],
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -364,11 +404,11 @@ class MyBottomAppBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 60,
+      height: 70, // Tambah tinggi AppBar agar ikon benar-benar di tengah
       child: BottomAppBar(
-        shape: CircularNotchedRectangle(),
+        shape: const CircularNotchedRectangle(),
         elevation: 16,
-        color: Color(0xFFEAF4E5),
+        color: const Color(0xFFEAF4E5),
         child: Padding(
           padding: EdgeInsets.symmetric(
             horizontal: MediaQuery.of(context).size.width * 0.1,
@@ -376,20 +416,43 @@ class MyBottomAppBar extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              IconButton(
-                onPressed: () {
-                  print("Home clicked");
-                },
-                icon: Icon(Icons.home, color: Color(0xFF0D4715), size: 30),
+              SizedBox(
+                width: 72,
+                height: 72,
+                child: IconButton(
+                  padding: EdgeInsets.zero,
+                  alignment: Alignment.center,
+                  onPressed: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (_) => const MyApp()),
+                    );
+                  },
+                  icon: const Icon(
+                    Icons.home,
+                    color: Color(0xFF99BC85),
+                    size: 34,
+                  ),
+                ),
               ),
-              IconButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const ProfilePage()),
-                  );
-                },
-                icon: Icon(Icons.person, color: Color(0xFF0D4715), size: 30),
+              SizedBox(
+                width: 72,
+                height: 72,
+                child: IconButton(
+                  padding: EdgeInsets.zero,
+                  alignment: Alignment.center,
+                  onPressed: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (_) => const ProfilePage()),
+                    );
+                  },
+                  icon: const Icon(
+                    Icons.settings,
+                    color: Color(0xFF99BC85),
+                    size: 34,
+                  ),
+                ),
               ),
             ],
           ),
@@ -404,12 +467,22 @@ class MyFloatingActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FloatingActionButton(
-      backgroundColor: Color(0xFF0D4715),
-      onPressed: () {
-        print("Floating action button clicked");
-      },
-      child: Icon(Icons.local_florist),
+    return SizedBox(
+      width: 74, // Ukuran tombol (diameter)
+      height: 74, // Ukuran tombol (diameter)
+      child: FloatingActionButton(
+        backgroundColor: Color(0xFF99BC85),
+        onPressed: () {
+          print("Floating action button clicked");
+        },
+        shape: CircleBorder(), // Membuat tombol bulat
+        elevation: 6,
+        child: Icon(
+          Icons.local_florist_outlined,
+          color: Color.fromARGB(255, 255, 255, 255),
+          size: 34, // Ukuran ikon
+        ),
+      ),
     );
   }
 }

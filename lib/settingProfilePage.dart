@@ -1,7 +1,8 @@
 import 'loginPage.dart';
-import 'profileUserPage.dart';
+import 'userPage.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'main.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -12,31 +13,48 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  // TODO: Ganti ini dengan status login sesungguhnya dari Firebase atau SharedPreferences
-  bool isLoggedIn = true;
+  bool isLoggedIn = false;
+
+  // Fungsi untuk mendapatkan status login dari SharedPreferences
+  _getLoginStatus() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _getLoginStatus();
+  }
 
   List<Map<String, dynamic>> getAccountOptions(BuildContext context) {
-    return [
-      if (!isLoggedIn)
-        {
-          "title": "Login",
-          "icon": FontAwesomeIcons.personChalkboard,
-          "onTap":
-              () => Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (_) => const LoginPage()),
-              ),
-        }
-      else
-        {
-          "title": "Profile",
-          "icon": FontAwesomeIcons.user,
-          "onTap":
-              () => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const ProfileUserPage()),
-              ),
-        },
+    List<Map<String, dynamic>> options = [];
+
+    if (!isLoggedIn) {
+      options.add({
+        "title": "Login",
+        "icon": FontAwesomeIcons.personChalkboard,
+        "onTap":
+            () => Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (_) => const LoginPage()),
+            ),
+      });
+    } else {
+      options.add({
+        "title": "Profile",
+        "icon": FontAwesomeIcons.user,
+        "onTap":
+            () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const ProfileUserPage()),
+            ),
+      });
+    }
+
+    options.addAll([
       {
         "title": "Activity",
         "icon": FontAwesomeIcons.chartLine,
@@ -67,7 +85,9 @@ class _ProfilePageState extends State<ProfilePage> {
         "icon": FontAwesomeIcons.fileInvoice,
         "onTap": () => print("Set up an account Clicked"),
       },
-    ];
+    ]);
+
+    return options;
   }
 
   final List<Map<String, dynamic>> otherOptions = [
@@ -93,10 +113,11 @@ class _ProfilePageState extends State<ProfilePage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          "Profile",
-          style: TextStyle(color: Color(0xFF0D4715)),
+          "Setting",
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
-        backgroundColor: const Color(0xFFEAF4E5),
+        centerTitle: true, // Ini yang membuat judul di tengah
+        backgroundColor: const Color(0xFF99BC85),
       ),
       body: SingleChildScrollView(
         child: Container(
@@ -131,12 +152,22 @@ class _ProfilePageState extends State<ProfilePage> {
       ),
       bottomNavigationBar: const MyBottomAppBar(),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: const Color(0xFF0D4715),
-        onPressed: () {
-          print("Floating action button clicked");
-        },
-        child: const Icon(Icons.local_florist),
+      floatingActionButton: SizedBox(
+        width: 74, // Ukuran tombol (diameter)
+        height: 74, // Ukuran tombol (diameter)
+        child: FloatingActionButton(
+          backgroundColor: const Color(0xFF99BC85),
+          onPressed: () {
+            print("Floating action button clicked");
+          },
+          shape: CircleBorder(), // Membuat tombol bulat
+          elevation: 6,
+          child: const Icon(
+            Icons.local_florist_outlined, // Menggunakan ikon yang diinginkan
+            color: Color.fromARGB(255, 255, 255, 255), // Warna ikon putih
+            size: 34, // Ukuran ikon
+          ), // Efek bayangan tombol
+        ),
       ),
     );
   }

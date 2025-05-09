@@ -9,13 +9,18 @@ class MenuPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color(0xFFEAF4E5),
+        backgroundColor: const Color(
+          0xFF99BC85,
+        ), // Ganti warna background AppBar
         elevation: 0,
         automaticallyImplyLeading: false,
         title: Row(
           children: [
             IconButton(
-              icon: const Icon(Icons.arrow_back, color: Color(0xFF0D4715)),
+              icon: const Icon(
+                Icons.arrow_back,
+                color: Colors.white,
+              ), // Warna putih
               onPressed: () {
                 Navigator.pop(context);
               },
@@ -27,11 +32,16 @@ class MenuPage extends StatelessWidget {
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(30),
                 ),
-                child: TextField(
-                  decoration: const InputDecoration(
+                child: const TextField(
+                  decoration: InputDecoration(
                     hintText: 'Search Plant...',
-                    hintStyle: TextStyle(color: Color(0xFF0D4715)),
-                    prefixIcon: Icon(Icons.search, color: Color(0xFF0D4715)),
+                    hintStyle: TextStyle(
+                      color: Color(0xFF0D4715),
+                    ), // Warna teks
+                    prefixIcon: Icon(
+                      Icons.search,
+                      color: Color(0xFF0D4715),
+                    ), // Warna icon
                     border: InputBorder.none,
                     contentPadding: EdgeInsets.symmetric(vertical: 10),
                   ),
@@ -41,12 +51,14 @@ class MenuPage extends StatelessWidget {
           ],
         ),
       ),
+
       body: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance
-            .collection('plants')
-            .where('category', isEqualTo: category)
-            .orderBy('timestamp', descending: true)
-            .snapshots(),
+        stream:
+            FirebaseFirestore.instance
+                .collection('plants')
+                .where('category', isEqualTo: category)
+                .orderBy('timestamp', descending: true)
+                .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -72,7 +84,8 @@ class MenuPage extends StatelessWidget {
                 child: ListTile(
                   title: Text(plant['name']),
                   subtitle: Text(
-                      '${plant['description']}\nDurasi tumbuh: ${plant['duration']} hari'),
+                    '${plant['description']}\nDurasi tumbuh: ${plant['duration']} hari',
+                  ),
                   isThreeLine: true,
                   leading: const Icon(Icons.eco, color: Color(0xFF0D4715)),
                 ),
