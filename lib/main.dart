@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:async';
@@ -9,15 +11,13 @@ import 'notificationPage.dart';
 import 'menuPage.dart';
 import 'chatBotPage.dart';
 import 'settingProfilePage.dart';
-import 'signupPage.dart';
 import 'startPlantPage.dart';
 import 'loginPage.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized(); // Memastikan binding Flutter sudah siap
   await Firebase.initializeApp(); // Inisialisasi Firebase
-  SharedPreferences prefs =
-      await SharedPreferences.getInstance(); // Tambahkan ini
+  SharedPreferences prefs = await SharedPreferences.getInstance();
   runApp(AppEntry()); // Jalankan aplikasi
 }
 
@@ -129,20 +129,43 @@ class _MyAppState extends State<MyApp> {
                         User? user = FirebaseAuth.instance.currentUser;
 
                         if (user == null) {
-                          // Jika pengguna belum login, arahkan ke halaman login
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => LoginPage(),
-                            ), // Arahkan ke halaman login
+                          // Tampilkan peringatan bahwa harus login terlebih dahulu
+                          showDialog(
+                            context: context,
+                            builder:
+                                (context) => AlertDialog(
+                                  title: Text("Access Denied"),
+                                  content: Text(
+                                    "Please log in first to start planting.",
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      child: Text("Cancel"),
+                                      onPressed:
+                                          () => Navigator.of(context).pop(),
+                                    ),
+                                    TextButton(
+                                      child: Text("Login"),
+                                      onPressed: () {
+                                        Navigator.of(
+                                          context,
+                                        ).pop(); // Tutup dialog
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (_) => LoginPage(),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  ],
+                                ),
                           );
                         } else {
                           // Jika sudah login, arahkan ke halaman Start Plant
                           Navigator.push(
                             context,
-                            MaterialPageRoute(
-                              builder: (_) => StartPlantPage(),
-                            ), // Arahkan ke halaman Start Plant
+                            MaterialPageRoute(builder: (_) => StartPlantPage()),
                           );
                         }
                       },
@@ -404,7 +427,7 @@ class MyBottomAppBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 70, // Tambah tinggi AppBar agar ikon benar-benar di tengah
+      height: 70,
       child: BottomAppBar(
         shape: const CircularNotchedRectangle(),
         elevation: 16,

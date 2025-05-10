@@ -246,6 +246,22 @@ class _LoginPageState extends State<LoginPage> {
                           style: TextStyle(color: Colors.green),
                         ),
                       ),
+                      const SizedBox(height: 12),
+                      TextButton.icon(
+                        onPressed: () {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const AppEntry(),
+                            ),
+                          );
+                        },
+                        icon: const Icon(Icons.arrow_back, color: Colors.green),
+                        label: const Text(
+                          'Kembali ke Beranda',
+                          style: TextStyle(color: Colors.green),
+                        ),
+                      ),
                     ],
                   ),
                 ),

@@ -17,11 +17,19 @@ class AdminHomePage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          "Welcome Admin!",
-          style: TextStyle(color: Color(0xFF0D4715)),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () {
+            Navigator.pop(context); // Kembali ke halaman sebelumnya
+          },
         ),
-        backgroundColor: Colors.white,
+        title: const Text(
+          "Welcome Admin !!",
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
+        centerTitle: true,
+        backgroundColor: const Color(0xFF99BC85),
+        elevation: 0,
       ),
       body: ListView.builder(
         itemCount: categories.length,
@@ -91,8 +99,19 @@ class _AddPlantPageState extends State<AddPlantPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Tambah Tanaman - ${widget.category}'),
-        backgroundColor: Colors.green[700],
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () {
+            Navigator.pop(context); // Kembali ke halaman sebelumnya
+          },
+        ),
+        title: const Text(
+          "Add Plant Information",
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
+        centerTitle: true,
+        backgroundColor: const Color(0xFF99BC85),
+        elevation: 0,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -100,21 +119,29 @@ class _AddPlantPageState extends State<AddPlantPage> {
           children: [
             TextField(
               controller: _nameController,
-              decoration: const InputDecoration(labelText: 'Nama Tumbuhan'),
+              decoration: const InputDecoration(labelText: 'Plant Name'),
             ),
             TextField(
               controller: _descController,
-              decoration: const InputDecoration(labelText: 'Deskripsi'),
+              decoration: const InputDecoration(labelText: 'Description'),
             ),
             TextField(
               controller: _durationController,
-              decoration: const InputDecoration(
-                labelText: 'Durasi Tumbuh (hari)',
-              ),
+              decoration: const InputDecoration(labelText: 'Growth Duration'),
               keyboardType: TextInputType.number,
             ),
             const SizedBox(height: 20),
-            ElevatedButton(onPressed: _savePlant, child: const Text('Simpan')),
+            ElevatedButton(
+              onPressed: _savePlant,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF99BC85),
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              child: const Text("Submit", style: TextStyle(fontSize: 18)),
+            ),
           ],
         ),
       ),
