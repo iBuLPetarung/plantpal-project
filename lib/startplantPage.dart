@@ -138,7 +138,6 @@ class _StartPlantPageState extends State<StartPlantPage> {
                 validator: (value) => value!.isEmpty ? 'Required' : null,
               ),
               const SizedBox(height: 16),
-
               const Text(
                 "Planting Start Date",
                 style: TextStyle(color: Color(0xFF0D4715)),
@@ -172,7 +171,6 @@ class _StartPlantPageState extends State<StartPlantPage> {
                 ],
               ),
               const SizedBox(height: 16),
-
               const Text(
                 "Planting Method",
                 style: TextStyle(color: Color(0xFF0D4715)),
@@ -184,7 +182,6 @@ class _StartPlantPageState extends State<StartPlantPage> {
                 validator: (value) => value!.isEmpty ? 'Required' : null,
               ),
               const SizedBox(height: 24),
-
               SizedBox(
                 width: double.infinity,
                 height: 50,

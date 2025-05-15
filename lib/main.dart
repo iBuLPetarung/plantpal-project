@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:firebase_storage/firebase_storage.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:async';
@@ -13,11 +11,13 @@ import 'chatBotPage.dart';
 import 'settingProfilePage.dart';
 import 'startPlantPage.dart';
 import 'loginPage.dart';
+import 'artikelPage.dart';
+import 'myPlantPage.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized(); // Memastikan binding Flutter sudah siap
   await Firebase.initializeApp(); // Inisialisasi Firebase
-  SharedPreferences prefs = await SharedPreferences.getInstance();
+  await SharedPreferences.getInstance(); // ✅ Tidak ada warning
   runApp(AppEntry()); // Jalankan aplikasi
 }
 
@@ -127,7 +127,6 @@ class _MyAppState extends State<MyApp> {
                       onPressed: () async {
                         // Cek status login pengguna
                         User? user = FirebaseAuth.instance.currentUser;
-
                         if (user == null) {
                           // Tampilkan peringatan bahwa harus login terlebih dahulu
                           showDialog(
@@ -183,7 +182,7 @@ class _MyAppState extends State<MyApp> {
                     ),
                     SizedBox(height: 36),
                     buildSectionTitle("For you"),
-                    buildGridView(),
+                    ArtikelMenu(),
                   ],
                 ),
               ),
@@ -334,28 +333,7 @@ class _MyAppState extends State<MyApp> {
       ),
     );
   }
-
-  Widget buildGridView() {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16),
-      child: GridView.count(
-        crossAxisCount: 2,
-        crossAxisSpacing: 12,
-        mainAxisSpacing: 12,
-        shrinkWrap: true,
-        physics: NeverScrollableScrollPhysics(),
-        children: List.generate(
-          12,
-          (index) => Container(
-            height: 100,
-            color: Color(0xFF99BC85),
-            child: Center(child: Text('Item ${index + 1}')),
-          ),
-        ),
-      ),
-    );
-  }
-
+  
   Widget _buildFloatingSearchBar() {
     return Container(
       height: 50,
@@ -495,8 +473,42 @@ class MyFloatingActionButton extends StatelessWidget {
       height: 74, // Ukuran tombol (diameter)
       child: FloatingActionButton(
         backgroundColor: Color(0xFF99BC85),
-        onPressed: () {
-          print("Floating action button clicked");
+        onPressed: () async {
+          // Cek status login pengguna
+          User? user = FirebaseAuth.instance.currentUser;
+          if (user == null) {
+            // Tampilkan peringatan bahwa harus login terlebih dahulu
+            showDialog(
+              context: context,
+              builder:
+                  (context) => AlertDialog(
+                    title: Text("Access Denied"),
+                    content: Text("Please log in first to see your plant."),
+                    actions: [
+                      TextButton(
+                        child: Text("Cancel"),
+                        onPressed: () => Navigator.of(context).pop(),
+                      ),
+                      TextButton(
+                        child: Text("Login"),
+                        onPressed: () {
+                          Navigator.of(context).pop(); // Tutup dialog
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => LoginPage()),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+            );
+          } else {
+            // Jika sudah login, arahkan ke halaman Start Plant
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => MyPlantPage()),
+            );
+          }
         },
         shape: CircleBorder(), // Membuat tombol bulat
         elevation: 6,

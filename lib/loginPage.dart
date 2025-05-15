@@ -24,10 +24,12 @@ class _LoginPageState extends State<LoginPage> {
   void _checkLoginStatus() async {
     final prefs = await SharedPreferences.getInstance();
     final isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
+    final email = prefs.getString('email') ?? "";
+    final uid = prefs.getString('uid') ?? "";
+
     if (isLoggedIn) {
       // Cek apakah pengguna sudah login dan arahkan ke halaman yang sesuai
-      final email = prefs.getString('email') ?? "";
-      if (email == "admin@gmail.com") {
+      if (email == "admin@gmail.com" && uid == "gXNzjNg06sfOHtUnycXsZALehxH3") {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => AdminHomePage()),
@@ -61,19 +63,23 @@ class _LoginPageState extends State<LoginPage> {
           .signInWithEmailAndPassword(email: username, password: password);
 
       final email = userCredential.user?.email ?? "";
+      final uid = userCredential.user?.uid ?? "";
 
-      // Menyimpan status login dan email di SharedPreferences
+      // Menyimpan status login, email, dan UID di SharedPreferences
       final prefs = await SharedPreferences.getInstance();
       prefs.setBool('isLoggedIn', true);
       prefs.setString('email', email);
+      prefs.setString('uid', uid); // Menyimpan UID
 
-      // Cek apakah email adalah admin (hardcode di sini)
-      if (email == "admin@gmail.com") {
+      // Cek apakah email adalah admin (hardcode di sini) dan UID untuk membedakan peran
+      if (email == "admin@gmail.com" && uid == "gXNzjNg06sfOHtUnycXsZALehxH3") {
+        // Arahkan admin ke halaman AdminHomePage
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => AdminHomePage()),
         );
       } else {
+        // Arahkan customer ke halaman utama
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const AppEntry()),
@@ -258,7 +264,7 @@ class _LoginPageState extends State<LoginPage> {
                         },
                         icon: const Icon(Icons.arrow_back, color: Colors.green),
                         label: const Text(
-                          'Kembali ke Beranda',
+                          'Back to Home',
                           style: TextStyle(color: Colors.green),
                         ),
                       ),

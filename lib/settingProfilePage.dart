@@ -15,7 +15,6 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   bool isLoggedIn = false;
 
-  // Fungsi untuk mendapatkan status login dari SharedPreferences
   _getLoginStatus() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
@@ -27,6 +26,12 @@ class _ProfilePageState extends State<ProfilePage> {
   void initState() {
     super.initState();
     _getLoginStatus();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _getLoginStatus(); // tambahkan ini agar status login terupdate
   }
 
   List<Map<String, dynamic>> getAccountOptions(BuildContext context) {
@@ -68,7 +73,7 @@ class _ProfilePageState extends State<ProfilePage> {
       {
         "title": "Change Language",
         "icon": FontAwesomeIcons.language,
-        "onTap": () => print("Language Clicked"),
+        "onTap": () => _showLanguageDialog(context),
       },
       {
         "title": "Notification",
@@ -229,6 +234,34 @@ class _ProfilePageState extends State<ProfilePage> {
           ],
         ),
       ),
+    );
+  }
+
+  void _showLanguageDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Pilih Bahasa / Choose Language"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                title: const Text("Bahasa Indonesia"),
+                onTap: () {
+                  print("Tombol ditekan: Bahasa Indonesia dipilih");
+                },
+              ),
+              ListTile(
+                title: const Text("English"),
+                onTap: () {
+                  print("Button pressed: English selected");
+                },
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }
