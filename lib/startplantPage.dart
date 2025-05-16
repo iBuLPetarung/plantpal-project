@@ -35,48 +35,58 @@ class _StartPlantPageState extends State<StartPlantPage> {
   }
 
   Future<void> _submitForm() async {
-    if (!_formKey.currentState!.validate()) return;
-    if (_selectedDate == null) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Please select a date')));
-      return;
-    }
-
-    try {
-      final user = FirebaseAuth.instance.currentUser;
-      if (user == null) {
-        throw Exception("User not logged in");
-      }
-
-      await FirebaseFirestore.instance
-          .collection('users')
-          .doc(user.uid)
-          .collection('plants')
-          .add({
-            'plantName': _plantNameController.text,
-            'plantType': _selectedType,
-            'variety': _varietyController.text,
-            'startDate': Timestamp.fromDate(_selectedDate!),
-            'plantingMethod': _plantingMethodController.text,
-            'createdAt': FieldValue.serverTimestamp(),
-          });
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Plant added successfully!')),
-      );
-
-      _formKey.currentState!.reset();
-      setState(() {
-        _selectedType = null;
-        _selectedDate = null;
-      });
-    } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Error: ${e.toString()}')));
-    }
+  if (!_formKey.currentState!.validate()) return;
+  if (_selectedDate == null) {
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Please select a date')));
+    return;
   }
+
+  try {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) throw Exception("User not logged in");
+
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(user.uid)
+        .collection('plants')
+        .add({
+          'plantName': _plantNameController.text,
+          'plantType': _selectedType,
+          'variety': _varietyController.text,
+          'startDate': Timestamp.fromDate(_selectedDate!),
+          'plantingMethod': _plantingMethodController.text,
+          'createdAt': FieldValue.serverTimestamp(),
+        });
+
+    // Tambahkan notifikasi ke Firestore
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(user.uid)
+        .collection('notifications')
+        .add({
+          'title': 'New Plant Added',
+          'message': 'You added ${_plantNameController.text} successfully.',
+          'timestamp': FieldValue.serverTimestamp(),
+        });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Plant added successfully!')),
+    );
+
+    _formKey.currentState!.reset();
+    setState(() {
+      _selectedType = null;
+      _selectedDate = null;
+    });
+  } catch (e) {
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('Error: ${e.toString()}')));
+  }
+}
+
 
   @override
   Widget build(BuildContext context) {

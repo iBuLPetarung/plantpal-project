@@ -227,6 +227,22 @@ class _PlantDetailPageState extends State<PlantDetailPage> {
         });
   }
 
+  Future<void> _addNotification(String action) async {
+    final now = DateTime.now();
+
+    await _firestore
+        .collection('users')
+        .doc(userId)
+        .collection('notifications')
+        .add({
+          'plantId': widget.plantId,
+          'plantName': widget.plantName,
+          'action': action,
+          'date': now,
+          'timestamp': FieldValue.serverTimestamp(),
+        });
+  }
+
   Future<void> _showConfirmationDialog(
     BuildContext context,
     String action,
@@ -259,9 +275,12 @@ class _PlantDetailPageState extends State<PlantDetailPage> {
                       break;
                   }
                 });
+
                 updateRoutineStatus();
+                _addNotification(action); // <-- Tambahkan ini
                 Navigator.of(context).pop();
               },
+
               child: const Text('Confirm'),
             ),
           ],

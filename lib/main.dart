@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'dart:async';
 import 'splashScreen.dart';
 import 'notificationPage.dart';
@@ -17,13 +18,14 @@ import 'myPlantPage.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized(); // Memastikan binding Flutter sudah siap
   await Firebase.initializeApp(); // Inisialisasi Firebase
+  await dotenv.load();
+  print("API KEY = ${dotenv.env['API_KEY']}");
   await SharedPreferences.getInstance(); // ✅ Tidak ada warning
   runApp(AppEntry()); // Jalankan aplikasi
 }
 
 class AppEntry extends StatefulWidget {
   const AppEntry({super.key});
-
   @override
   _AppEntryState createState() => _AppEntryState();
 }
@@ -176,7 +178,7 @@ class _MyAppState extends State<MyApp> {
                       onPressed: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (_) => ChatPage()),
+                          MaterialPageRoute(builder: (_) => HomeScreen()),
                         );
                       },
                     ),
@@ -333,7 +335,7 @@ class _MyAppState extends State<MyApp> {
       ),
     );
   }
-  
+
   Widget _buildFloatingSearchBar() {
     return Container(
       height: 50,

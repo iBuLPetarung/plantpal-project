@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'main.dart';
 import 'adminEditPage.dart';
+import 'artikelPage.dart';
 
 class AdminHomePage extends StatelessWidget {
   const AdminHomePage({super.key});
@@ -40,7 +41,7 @@ class AdminHomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final categories = ['Vegetable', 'Fruits', 'Grains', 'Nuts'];
+    final categories = ['Vegetables', 'Fruits', 'Grains', 'Nuts'];
 
     return Scaffold(
       appBar: AppBar(
@@ -157,8 +158,6 @@ class _AddPlantPageState extends State<AddPlantPage> {
           content: Text('Tanaman berhasil ditambahkan ke ${widget.category}'),
         ),
       );
-
-      Navigator.pop(context);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -258,4 +257,3 @@ class _AddPlantPageState extends State<AddPlantPage> {
     );
   }
 }
-

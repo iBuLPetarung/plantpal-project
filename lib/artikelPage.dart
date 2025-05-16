@@ -85,34 +85,67 @@ class DetailPlantPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(plant['name'] ?? 'Detail Tanaman'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: Text(
+          _getFieldValue('name'),
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        centerTitle: true,
         backgroundColor: const Color(0xFF99BC85),
+        elevation: 0,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: ListView(
           children: [
-            _buildDetailTile("Nama Ilmiah", plant['scientificName']),
-            _buildDetailTile("Deskripsi", plant['description']),
-            _buildDetailTile("Durasi Tumbuh", "${plant['duration']} hari"),
-            _buildDetailTile("Kebutuhan Air", plant['watering']),
-            _buildDetailTile("Cahaya Matahari", plant['sunlight']),
-            _buildDetailTile("Jenis Tanah", plant['soil']),
-            _buildDetailTile("Instruksi Perawatan", plant['careInstructions']),
-            _buildDetailTile("Kategori", plant['category']),
+            _buildDetailTile(
+              "Scientific Name",
+              _getFieldValue('scientificName'),
+            ),
+            _buildDetailTile("Description", _getFieldValue('description')),
+            _buildDetailTile(
+              "Growth Duration",
+              "${_getFieldValue('duration')} hari",
+            ),
+            _buildDetailTile("Water Needs", _getFieldValue('watering')),
+            _buildDetailTile("Sunlight", _getFieldValue('sunlight')),
+            _buildDetailTile("Soil Type", _getFieldValue('soil')),
+            _buildDetailTile(
+              "Care Instructions",
+              _getFieldValue('careInstructions'),
+            ),
+            _buildDetailTile("Category", _getFieldValue('category')),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildDetailTile(String title, String value) {
+  Widget _buildDetailTile(String? title, String value) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: ListTile(
-        title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
-        subtitle: Text(value),
+        title: Text(
+          title ?? '-',
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
+        subtitle: Text(value.isNotEmpty ? value : '-'),
       ),
     );
+  }
+
+  /// Fungsi untuk mengambil nilai field dari dokumen secara aman.
+  String _getFieldValue(String key) {
+    final data = plant.data() as Map<String, dynamic>;
+    if (data.containsKey(key) && data[key] != null) {
+      return data[key].toString();
+    }
+    return '-';
   }
 }

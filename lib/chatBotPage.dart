@@ -1,63 +1,61 @@
 import 'package:flutter/material.dart';
+import 'package:google_generative_ai/google_generative_ai.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-class ChatPage extends StatefulWidget {
-  const ChatPage({super.key});
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
+
   @override
-  State<ChatPage> createState() => _ChatPageState();
+  State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _ChatPageState extends State<ChatPage> {
-  final List<Map<String, String>> _messages = [];
-  final TextEditingController _controller = TextEditingController();
+class _HomeScreenState extends State<HomeScreen> {
+  late final GenerativeModel _model;
+  late final ChatSession _chat;
   final ScrollController _scrollController = ScrollController();
-  void _sendMessage() {
-    final userMessage = _controller.text.trim();
-    if (userMessage.isEmpty) return;
-    setState(() {
-      _messages.add({"sender": "user", "message": userMessage});
-      _messages.add({
-        "sender": "bot",
-        "message": _generateBotResponse(userMessage),
-      });
-    });
-    _controller.clear();
-    Future.delayed(Duration(milliseconds: 300), () {
-      _scrollController.animateTo(
-        _scrollController.position.maxScrollExtent,
-        duration: Duration(milliseconds: 300),
-        curve: Curves.easeOut,
-      );
-    });
+  final TextEditingController _textController = TextEditingController();
+  final FocusNode _textFieldFocus = FocusNode(debugLabel: 'TextField');
+  bool _loading = false;
+
+  final List<Map<String, dynamic>> _localHistory =
+      []; // Diubah jadi list of map
+
+  @override
+  void initState() {
+    super.initState();
+    _initChatModel();
   }
 
-  String _generateBotResponse(String input) {
-    if (input.toLowerCase().contains("halo")) {
-      return "Halo juga! Ada yang bisa aku bantu?";
-    } else if (input.toLowerCase().contains("cuaca")) {
-      return "Cuaca hari ini cerah, cocok buat bertani! ☀️";
-    } else {
-      return "Aku belum ngerti itu, coba pertanyaan lain ya!";
+  Future<void> _initChatModel() async {
+    try {
+      final apiKey = dotenv.env['API_KEY'];
+      if (apiKey == null) {
+        throw Exception('API_KEY tidak ditemukan di .env');
+      }
+      _model = GenerativeModel(model: 'gemini-2.0-flash', apiKey: apiKey);
+      _chat = _model.startChat();
+    } catch (e) {
+      print('❌ Error saat init chat model: $e');
     }
   }
 
-  Widget _buildMessage(String sender, String message) {
-    final isUser = sender == "user";
-    return Align(
-      alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
-        decoration: BoxDecoration(
-          color: isUser ? Colors.green[100] : Colors.grey[200],
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Text(message),
-      ),
-    );
+  void _scrollDown() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_scrollController.hasClients) {
+        _scrollController.animateTo(
+          _scrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 750),
+          curve: Curves.easeOutCirc,
+        );
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    final history = _localHistory;
+
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -67,7 +65,7 @@ class _ChatPageState extends State<ChatPage> {
           },
         ),
         title: const Text(
-          "Planty",
+          "Ask Planty",
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
@@ -79,43 +77,153 @@ class _ChatPageState extends State<ChatPage> {
           Expanded(
             child: ListView.builder(
               controller: _scrollController,
-              itemCount: _messages.length,
-              itemBuilder: (context, index) {
-                final msg = _messages[index];
-                return _buildMessage(msg["sender"]!, msg["message"]!);
+              itemCount: history.length,
+              itemBuilder: (context, idx) {
+                final message = history[idx];
+                return MessageWidget(
+                  text: message['text'] ?? '',
+                  isFromUser: message['role'] == 'user',
+                );
               },
             ),
           ),
+          const Divider(height: 1),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
             child: Row(
               children: [
                 Expanded(
                   child: TextField(
-                    controller: _controller,
+                    controller: _textController,
+                    focusNode: _textFieldFocus,
+                    autofocus: true,
                     decoration: InputDecoration(
-                      hintText: "Ask Planty Now!...",
-                      hintStyle: TextStyle(color: Color(0xFF0D4715)),
+                      hintText: 'Ask everything about plant...',
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(28),
-                        borderSide: BorderSide(
-                          color: Color(0xFF0D4715), // Ganti warna border
-                          width: 2.0, // Lebar border
-                        ),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 10,
                       ),
                     ),
+                    onSubmitted: _sendChatMessage,
                   ),
                 ),
-                SizedBox(width: 8),
-                IconButton(
-                  icon: Icon(Icons.send, color: Color(0xFF0D4715)),
-                  onPressed: _sendMessage,
-                ),
+                const SizedBox(width: 10),
+                _loading
+                    ? const SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: CircularProgressIndicator(strokeWidth: 3),
+                    )
+                    : IconButton(
+                      icon: const Icon(Icons.send),
+                      onPressed: () => _sendChatMessage(_textController.text),
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
               ],
             ),
           ),
         ],
       ),
+    );
+  }
+
+  Future<void> _sendChatMessage(String message) async {
+    if (message.trim().isEmpty) return;
+
+    setState(() {
+      _localHistory.add({
+        'role': 'user',
+        'text': message,
+      }); // Tambahkan pesan user
+      _loading = true;
+    });
+
+    _textController.clear();
+    _textFieldFocus.requestFocus();
+    _scrollDown();
+
+    try {
+      final response = await _chat.sendMessage(Content.text(message));
+      final text = response.text;
+
+      if (text == null) {
+        _showError('Respon kosong.');
+        setState(() => _loading = false);
+        return;
+      }
+
+      setState(() {
+        _localHistory.add({
+          'role': 'bot',
+          'text': text,
+        }); // Tambahkan balasan bot
+        _loading = false;
+      });
+      _scrollDown();
+    } catch (e) {
+      _showError('Terjadi error: $e');
+      setState(() => _loading = false);
+    }
+  }
+
+  void _showError(String message) {
+    showDialog<void>(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Terjadi kesalahan'),
+            content: Text(message),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('OK'),
+              ),
+            ],
+          ),
+    );
+  }
+}
+
+class MessageWidget extends StatelessWidget {
+  const MessageWidget({
+    super.key,
+    required this.text,
+    required this.isFromUser,
+  });
+
+  final String text;
+  final bool isFromUser;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment:
+          isFromUser ? MainAxisAlignment.end : MainAxisAlignment.start,
+      children: [
+        Flexible(
+          child: Container(
+            constraints: const BoxConstraints(maxWidth: 480),
+            decoration: BoxDecoration(
+              color:
+                  isFromUser
+                      ? const Color(0xFFEAEAEA) // Abu-abu untuk User
+                      : const Color(0xFFE8F5E9), // Hijau muda untuk Bot
+              borderRadius: BorderRadius.circular(16),
+            ),
+            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+            margin: const EdgeInsets.only(bottom: 8, left: 8, right: 8),
+            child: MarkdownBody(
+              data: text,
+              styleSheet: MarkdownStyleSheet(
+                p: const TextStyle(fontSize: 16, color: Colors.black87),
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
